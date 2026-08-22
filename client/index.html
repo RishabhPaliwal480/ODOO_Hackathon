@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Globe Trotter — Empowering Personalized Travel Planning</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Libraries (Tailwind CSS, Chart.js, Canvas Confetti) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bone: '#f7f5f0',
+              dark: '#0a1419',
+              darker: '#060d11',
+              emerald: '#047857',
+              teal: '#0d9488'
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            display: ['Bebas Neue', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #060d11;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+    
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-title-single-line {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.02em;
+      font-size: clamp(2.6rem, 10.5vw, 10.5rem);
+      line-height: 0.88;
+      white-space: nowrap !important;
+      text-transform: uppercase;
+    }
+
+    /* Sleek Frosted Glass Pill Navbar */
+    .glass-nav-pill {
+      background: rgba(10, 20, 25, 0.55);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Glass Cards */
+    .glass-card-dark {
+      background: rgba(14, 25, 31, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
+    }
+    
+    .glass-card-hover {
+      transition: all 0.25s ease;
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-solid-white {
+      background-color: #ffffff;
+      color: #0b1317;
+      transition: all 0.2s ease;
+    }
+    .btn-solid-white:hover {
+      background-color: #f1f5f9;
+      transform: translateY(-1px);
+    }
+
+    .modal-backdrop {
+      background: rgba(4, 9, 12, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #060d11; }
+    ::-webkit-scrollbar-thumb { background: #1e3a47; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2d586c; }
+  </style>
+</head>
+<body class="bg-[#060d11] text-slate-100 antialiased selection:bg-emerald-600 selection:text-white">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
