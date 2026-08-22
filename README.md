@@ -38,14 +38,6 @@ The goal of GlobeTrotter is to simplify the travel planning experience by provid
 > See GlobeTrotter in action — from destination discovery to trip planning and itinerary management.
 Watch the Demo Video -> https://youtu.be/de8nGkv9nOI
 
-# GlobeTrotter — Smart Travel Planning & Itinerary Platform
-
-![GlobeTrotter Banner](https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&auto=format&fit=crop&q=80)
-
-> **GlobeTrotter** 
-
----
-
 ## Module Overview
 
 | Module | Capabilities |
