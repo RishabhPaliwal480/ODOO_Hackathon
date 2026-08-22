@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String             @id @default(uuid()) @db.Uuid
+  name              String             @db.VarChar(100)
+  email             String             @unique @db.VarChar(255)
+  passwordHash      String             @map("password_hash") @db.VarChar(255)
+  phone             String?            @db.VarChar(20)
+  avatarUrl         String?            @default("https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150") @map("avatar_url")
+  preferredCurrency String             @default("USD") @map("preferred_currency") @db.VarChar(10)
+  role              String             @default("traveler") @db.VarChar(20)
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  trips             Trip[]
+  savedDestinations SavedDestination[]
+
+  @@map("users")
+}
+
+model City {
+  id              String             @id @default(uuid()) @db.Uuid
+  name            String             @db.VarChar(100)
+  country         String             @db.VarChar(100)
+  region          String             @db.VarChar(100)
+  description     String?
+  costIndex       String             @default("Moderate") @map("cost_index") @db.VarChar(20)
+  popularityScore Int                @default(85) @map("popularity_score")
+  imageUrl        String?            @map("image_url")
+  avgDailyCost    Decimal            @default(120.00) @map("avg_daily_cost") @db.Decimal(10, 2)
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  activities      Activity[]
+  tripStops       TripStop[]
+  savedBy         SavedDestination[]
+
+  @@index([region])
+  @@index([popularityScore])
+  @@map("cities")
+}
+
+model Activity {
+  id            String             @id @default(uuid()) @db.Uuid
+  cityId        String             @map("city_id") @db.Uuid
+  name          String             @db.VarChar(150)
+  category      String             @db.VarChar(50)
+  description   String?
+  durationHours Decimal            @default(2.0) @map("duration_hours") @db.Decimal(3, 1)
+  cost          Decimal            @default(0.00) @db.Decimal(10, 2)
+  imageUrl      String?            @map("image_url")
+  createdAt     DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  city          City               @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  tripItems     TripActivity[]
+
+  @@index([cityId])
+  @@index([category])
+  @@map("activities")
+}
+
+model Trip {
+  id              String     @id @default(uuid()) @db.Uuid
+  userId          String     @map("user_id") @db.Uuid
+  title           String     @db.VarChar(150)
+  description     String?
+  startDate       DateTime   @map("start_date") @db.Date
+  endDate         DateTime   @map("end_date") @db.Date
+  estimatedBudget Decimal    @default(1500.00) @map("estimated_budget") @db.Decimal(12, 2)
+  coverImage      String?    @default("https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800") @map("cover_image")
+  isPublic        Boolean    @default(false) @map("is_public")
+  shareSlug       String?    @unique @map("share_slug") @db.VarChar(100)
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stops           TripStop[]
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("trips")
+}
+
+model TripStop {
+  id            String         @id @default(uuid()) @db.Uuid
+  tripId        String         @map("trip_id") @db.Uuid
+  cityId        String         @map("city_id") @db.Uuid
+  stopOrder     Int            @map("stop_order")
+  arrivalDate   DateTime       @map("arrival_date") @db.Date
+  departureDate DateTime       @map("departure_date") @db.Date
+  lodgingCost   Decimal        @default(0.00) @map("lodging_cost") @db.Decimal(10, 2)
+  transportCost Decimal        @default(0.00) @map("transport_cost") @db.Decimal(10, 2)
+  notes         String?
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  trip          Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  city          City           @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  activities    TripActivity[]
+
+  @@unique([tripId, stopOrder])
+  @@index([tripId])
+  @@index([cityId])
+  @@map("trip_stops")
+}
+
+model TripActivity {
+  id          String    @id @default(uuid()) @db.Uuid
+  tripStopId  String    @map("trip_stop_id") @db.Uuid
+  activityId  String?   @map("activity_id") @db.Uuid
+  customTitle String?   @map("custom_title") @db.VarChar(150)
+  dayNumber   Int       @default(1) @map("day_number")
+  timeSlot    String    @default("Morning") @map("time_slot") @db.VarChar(50)
+  cost        Decimal   @default(0.00) @db.Decimal(10, 2)
+  isCompleted Boolean   @default(false) @map("is_completed")
+  notes       String?
+  stop        TripStop  @relation(fields: [tripStopId], references: [id], onDelete: Cascade)
+  activity    Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
+
+  @@index([tripStopId])
+  @@index([activityId])
+  @@map("trip_activities")
+}
+
+model SavedDestination {
+  userId    String   @map("user_id") @db.Uuid
+  cityId    String   @map("city_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@id([userId, cityId])
+  @@map("saved_destinations")
+}
