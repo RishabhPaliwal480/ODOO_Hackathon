@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Globe Trotter — Empowering Personalized Travel Planning</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Libraries (Tailwind CSS, Lucide Icons, Chart.js, Canvas Confetti) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bone: '#f7f5f0',
+              dark: '#0a1419',
+              darker: '#060d11',
+              emerald: '#047857',
+              teal: '#0d9488'
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            display: ['Bebas Neue', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #060d11;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+    
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.02em;
+    }
+
+    /* Sleek Frosted Glass Pill Navbar */
+    .glass-nav-pill {
+      background: rgba(10, 20, 25, 0.55);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Glass Cards */
+    .glass-card-dark {
+      background: rgba(14, 25, 31, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
+    }
+    
+    .glass-card-hover {
+      transition: all 0.25s ease;
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-solid-white {
+      background-color: #ffffff;
+      color: #0b1317;
+      transition: all 0.2s ease;
+    }
+    .btn-solid-white:hover {
+      background-color: #f1f5f9;
+      transform: translateY(-1px);
+    }
+
+    .modal-backdrop {
+      background: rgba(4, 9, 12, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #060d11; }
+    ::-webkit-scrollbar-thumb { background: #1e3a47; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2d586c; }
+  </style>
+</head>
+<body class="bg-[#060d11] text-slate-100 antialiased selection:bg-emerald-600 selection:text-white">
+
+  <!-- ================= FULL-BLEED BACKGROUND VIDEO ================= -->
+  <div class="fixed inset-0 w-full h-full -z-20 overflow-hidden pointer-events-none">
+    <video id="fullBgVideo" autoplay loop muted playsinline class="w-full h-full object-cover filter brightness-[0.78] contrast-[1.08] scale-[1.02]" poster="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=2400&auto=format&fit=crop&q=90">
+      <source src="219300.mp4" type="video/mp4">
+    </video>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#060d11] pointer-events-none"></div>
+    <div class="absolute inset-0 bg-black/30 pointer-events-none"></div>
+  </div>
+
+  <!-- ================= SLEEK & SPACIOUS TOP NAVIGATION BAR ================= -->
+  <header class="sticky top-0 z-40 pt-4 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto transition-all">
+    <nav class="glass-nav-pill rounded-full px-5 sm:px-7 py-3 flex items-center justify-between shadow-2xl">
+      
+      <!-- Brand Logo: Single line, clean typography -->
+      <div class="flex items-center space-x-2.5 cursor-pointer shrink-0" onclick="switchView('home')">
+        <div class="w-7 h-7 rounded-full bg-emerald-500/25 border border-emerald-400/40 flex items-center justify-center text-emerald-400">
+          <i data-lucide="plane" class="w-3.5 h-3.5 transform -rotate-45 stroke-[2.5]"></i>
+        </div>
+        <span class="font-display text-2xl font-bold tracking-tight text-white whitespace-nowrap">GlobeTrotter</span>
+      </div>
+
+      <!-- Navigation Menu: Concise, single-line items with ample space -->
+      <div class="hidden md:flex items-center space-x-7 text-xs sm:text-sm font-semibold text-white/90 whitespace-nowrap">
+        <button onclick="switchView('home')" id="nav-home" class="text-emerald-400 font-bold transition-colors">Home</button>
+        <button onclick="switchView('citySearch')" id="nav-citySearch" class="hover:text-emerald-400 transition-colors">Explore</button>
+        <button onclick="switchView('myTrips')" id="nav-myTrips" class="hover:text-emerald-400 transition-colors">My Trips</button>
+        <button onclick="switchView('itineraryBuilder')" id="nav-itineraryBuilder" class="hover:text-emerald-400 transition-colors">Builder</button>
+        <button onclick="switchView('budget')" id="nav-budget" class="hover:text-emerald-400 transition-colors">Budget</button>
+        <button onclick="switchView('calendar')" id="nav-calendar" class="hover:text-emerald-400 transition-colors">Calendar</button>
+        <button onclick="switchView('community')" id="nav-community" class="hover:text-emerald-400 transition-colors">Community</button>
+      </div>
+
+      <!-- Right Side Actions: Clean Profile + Plan Trip Button -->
+      <div class="flex items-center space-x-3 shrink-0">
+        
+        <!-- Profile Shortcut Pill -->
+        <button onclick="switchView('profile')" class="flex items-center space-x-2 px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 transition-all text-xs font-semibold text-white">
+          <div class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">RP</div>
+          <span id="header-user-name" class="hidden sm:inline">Rishabh</span>
+        </button>
+
+        <!-- Plan Trip Button -->
+        <button onclick="switchView('createTrip')" class="px-5 py-2 rounded-full bg-white hover:bg-slate-100 text-[#0b1317] font-bold text-xs shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center space-x-1.5 whitespace-nowrap">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Plan Trip</span>
+        </button>
+
+      </div>
+    </nav>
+  </header>
+
+  <!-- ================= MAIN APPLICATION VIEWPORT ================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-16">
+
+    <!-- ================= FEATURE 2: DASHBOARD / HOME SCREEN ================= -->
+    <div id="view-home" class="app-view space-y-16">
+      
+      <!-- HERO BANNER OVER SCENIC FULL-BLEED VIDEO -->
+      <section class="relative min-h-[80vh] flex flex-col justify-between pt-4 pb-4">
+        
+        <!-- Welcome Greeting -->
+        <div class="flex items-center justify-center">
+          <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-400/30 text-emerald-300 text-xs font-bold backdrop-blur-md shadow-lg">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>Welcome back, <strong class="text-white" id="home-welcome-name">Rishabh</strong>! 1 Active Trip Scheduled.</span>
+          </div>
+        </div>
+
+        <!-- 1. Headline -->
+        <div class="text-center pt-2">
+          <h1 class="hero-title text-[4.8rem] sm:text-[7.5rem] md:text-[9.5rem] lg:text-[11.2rem] leading-[0.88] text-white tracking-tight uppercase select-none font-bold drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)]">
+            Explore the Unseen
+          </h1>
+        </div>
+
+        <!-- 2. Mid Section: Left Annotation + Right Search Bar -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto py-6">
+          
+          <!-- Left Callout Box with Pointer Line -->
+          <div class="lg:col-span-6 max-w-[340px] text-white space-y-2 relative">
+            <p class="text-xs sm:text-sm font-medium leading-relaxed drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] text-white/95">
+              Discover unique places beyond the tourist path, with carefully planned multi-city itineraries that balance adventure, comfort, and authenticity.
+            </p>
+            
+            <div class="hidden sm:block absolute top-1/2 -right-28 w-28 h-12 pointer-events-none opacity-80">
+              <svg width="112" height="48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="4" cy="24" r="3" fill="#ffffff"/>
+                <path d="M 4 24 L 60 24 L 90 40 L 108 40" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <circle cx="108" cy="40" r="3" fill="#ffffff"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Right: Floating Frosted Glass Search Bar -->
+          <div class="lg:col-span-6 flex justify-start lg:justify-end">
+            <div class="bg-[#0b1317]/65 backdrop-blur-2xl border border-white/20 rounded-2xl p-2 sm:p-2.5 flex flex-col sm:flex-row items-center gap-2 text-xs text-white shadow-2xl w-full sm:w-auto">
+              
+              <div onclick="switchView('citySearch')" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 cursor-pointer flex items-center space-x-3 transition-colors w-full sm:w-auto">
+                <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i>
+                <div>
+                  <div class="text-[9px] uppercase font-bold text-white/60">Find City</div>
+                  <div class="font-bold text-white text-xs">Bali, Indonesia</div>
+                </div>
+              </div>
+
+              <div onclick="switchView('calendar')" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 cursor-pointer flex items-center space-x-3 transition-colors w-full sm:w-auto">
+                <i data-lucide="calendar" class="w-4 h-4 text-amber-400"></i>
+                <div>
+                  <div class="text-[9px] uppercase font-bold text-white/60">Dates</div>
+                  <div class="font-bold text-white text-xs">Sep 15 - 22, 2026</div>
+                </div>
+              </div>
+
+              <div class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 cursor-pointer flex items-center space-x-3 transition-colors w-full sm:w-auto">
+                <i data-lucide="users" class="w-4 h-4 text-blue-400"></i>
+                <div>
+                  <div class="text-[9px] uppercase font-bold text-white/60">Guests</div>
+                  <div class="font-bold text-white text-xs">2 People ▾</div>
+                </div>
+              </div>
+
+              <button onclick="quickStartPlan('Bali, Indonesia', '980')" class="w-12 h-12 rounded-xl bg-white hover:bg-slate-100 text-slate-900 flex items-center justify-center font-bold shadow-lg transition-transform hover:scale-105 active:scale-95 shrink-0" aria-label="Search">
+                <i data-lucide="search" class="w-4 h-4 stroke-[2.5]"></i>
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 3. Bottom Row: Left Card + Right Statistics & Video Control -->
+        <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 pt-2">
+          
+          <!-- Bottom Left Card -->
+          <div class="bg-white/95 backdrop-blur-xl rounded-2xl p-4 sm:p-5 shadow-2xl border border-white/30 flex items-center space-x-4 max-w-[340px] text-slate-900">
+            <div class="space-y-1.5 flex-1">
+              <h3 class="font-bold text-sm sm:text-base leading-snug">Making Travel Simple & Joyful</h3>
+              <button onclick="switchView('createTrip')" class="text-xs font-bold text-slate-700 hover:text-black underline underline-offset-4 flex items-center space-x-1 pt-1">
+                <span>Plan New Trip</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <div class="w-16 h-20 sm:w-20 sm:h-24 rounded-xl overflow-hidden shrink-0 shadow-md">
+              <img src="https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=300&auto=format&fit=crop&q=80" alt="Traveler" class="w-full h-full object-cover">
+            </div>
+          </div>
+
+          <!-- Bottom Right Statistics & Video Toggle -->
+          <div class="flex items-center space-x-8 sm:space-x-12 text-white">
+            <div>
+              <div class="font-display text-4xl sm:text-5xl font-bold tracking-tight text-white drop-shadow-md">34k</div>
+              <div class="text-xs font-semibold text-white/80 mt-0.5">Total Customers</div>
+            </div>
+            <div>
+              <div class="font-display text-4xl sm:text-5xl font-bold tracking-tight text-white drop-shadow-md">12+</div>
+              <div class="text-xs font-semibold text-white/80 mt-0.5">Years Experience</div>
+            </div>
+            <div>
+              <div class="font-display text-4xl sm:text-5xl font-bold tracking-tight text-white drop-shadow-md">15k</div>
+              <div class="text-xs font-semibold text-white/80 mt-0.5">Destinations</div>
+            </div>
+
+            <!-- Video Play/Pause Control -->
+            <button onclick="toggleVideoPlayback()" id="videoToggleBtn" class="p-3 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-md border border-white/20 text-white/90 hover:text-white transition-transform hover:scale-105" title="Toggle Background Video">
+              <i data-lucide="pause" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- RECENT TRIPS & QUICK ACTION BAR -->
+      <section class="space-y-6 pt-4">
+        <div class="flex items-center justify-between border-b border-white/15 pb-4">
+          <div>
+            <div class="text-xs font-bold uppercase tracking-widest text-emerald-400">Dashboard Hub</div>
+            <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">Recent Trips & Active Plans</h2>
+          </div>
+          <button onclick="switchView('myTrips')" class="text-xs font-bold text-slate-300 hover:text-white flex items-center space-x-1">
+            <span>View All Trips</span>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div id="home-trips-list" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+      </section>
+
+      <!-- POPULAR DESTINATIONS -->
+      <section class="space-y-6 pt-4">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/15 pb-4">
+          <div>
+            <div class="text-xs font-bold uppercase tracking-widest text-emerald-400">Featured Explorer</div>
+            <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">Popular Cities & Inspiration</h2>
+          </div>
+          
+          <div class="flex items-center space-x-2 overflow-x-auto pb-1">
+            <button onclick="filterTopRegions('all')" class="region-filter-btn px-4 py-1.5 rounded-full text-xs font-bold bg-white text-[#0b1317] shadow-sm transition-all" data-region="all">All Regions</button>
+            <button onclick="filterTopRegions('europe')" class="region-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all" data-region="europe">Europe</button>
+            <button onclick="filterTopRegions('asia')" class="region-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all" data-region="asia">Asia</button>
+            <button onclick="filterTopRegions('tropical')" class="region-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all" data-region="tropical">Tropical</button>
+          </div>
+        </div>
+
+        <div id="home-featured-cities-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+      </section>
+
+    </div>
+
+    <!-- ================= FEATURE 3: CREATE TRIP SCREEN ================= -->
+    <div id="view-createTrip" class="app-view hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center space-x-1.5">
+            <span>Feature 3</span>
+            <span>•</span>
+            <span>Create Trip Wizard</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">Start a New Journey</h2>
+        </div>
+        <button onclick="switchView('itineraryBuilder')" class="px-5 py-2.5 rounded-full btn-solid-white font-bold text-xs flex items-center space-x-2 self-start">
+          <span>Go to Itinerary Builder</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="glass-card-dark rounded-3xl p-6 sm:p-8 space-y-6">
+        <form id="create-trip-form" onsubmit="handleCreateTripForm(event)" class="space-y-6">
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Trip Title / Name</label>
+              <input id="trip-input-name" type="text" placeholder="e.g. European Summer Art Odyssey" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold text-white focus:border-emerald-400 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Starting Origin</label>
+              <div class="relative">
+                <i data-lucide="map-pin" class="absolute left-3.5 top-3.5 w-4 h-4 text-emerald-400"></i>
+                <input id="trip-input-origin" type="text" value="Jaipur, India" required class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold text-white focus:border-emerald-400 focus:outline-none">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Start Date</label>
+              <input id="trip-input-start-date" type="date" value="2026-09-15" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold text-white focus:border-emerald-400 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">End Date</label>
+              <input id="trip-input-end-date" type="date" value="2026-09-22" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold text-white focus:border-emerald-400 focus:outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Primary Destination</label>
+              <input id="trip-input-destination" type="text" value="Paris, France" placeholder="e.g. Paris, Tokyo, Rome" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold text-white focus:border-emerald-400 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Estimated Budget ($ USD)</label>
+              <input id="trip-input-budget" type="number" value="1450" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold text-white focus:border-emerald-400 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Cover Photo Theme</label>
+              <select id="trip-input-theme" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-white/20 text-sm font-semibold text-white focus:border-emerald-400 focus:outline-none">
+                <option value="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80">Parisian Cityscape</option>
+                <option value="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&auto=format&fit=crop&q=80">Tokyo Neon & Temples</option>
+                <option value="https://images.unsplash.com/photo-1533105079780-92b9be482077?w=600&auto=format&fit=crop&q=80">Amalfi Coastline</option>
+                <option value="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&auto=format&fit=crop&q=80">Bali Tropical Haven</option>
+                <option value="https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=600&auto=format&fit=crop&q=80">Swiss Alps Mountain</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Trip Description & Travel Notes</label>
+            <textarea id="trip-input-desc" rows="3" class="w-full p-4 rounded-xl bg-white/10 border border-white/20 text-xs text-slate-200 focus:border-emerald-400 focus:outline-none leading-relaxed">Exploring historical landmarks, world-class museums, and culinary bistros across France with full budget management.</textarea>
+          </div>
+
+          <div class="pt-4 border-t border-white/15 flex flex-col sm:flex-row items-center justify-end gap-3">
+            <button type="button" onclick="switchView('myTrips')" class="w-full sm:w-auto px-6 py-2.5 rounded-full border border-white/20 text-slate-300 hover:text-white font-bold text-xs transition-colors">
+              Cancel
+            </button>
+            <button type="submit" class="w-full sm:w-auto px-8 py-3 rounded-full btn-solid-white font-bold text-xs flex items-center justify-center space-x-2">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Save & Proceed to Itinerary Builder</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+
+    <!-- ================= FEATURE 4: MY TRIPS SCREEN ================= -->
+    <div id="view-myTrips" class="app-view hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center space-x-1.5">
+            <span>Feature 4</span>
+            <span>•</span>
+            <span>Trips Central</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">My Travel Journeys</h2>
+        </div>
+        <button onclick="switchView('createTrip')" class="px-5 py-2.5 rounded-full btn-solid-white font-bold text-xs flex items-center space-x-2 self-start">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Create New Trip</span>
+        </button>
+      </div>
+
+      <div class="flex items-center space-x-2 overflow-x-auto pb-1">
+        <button onclick="filterTripListStatus('all')" class="trip-filter-tab px-4 py-1.5 rounded-full text-xs font-bold bg-white text-[#0b1317] shadow-sm transition-all" data-status="all">All Trips</button>
+        <button onclick="filterTripListStatus('ongoing')" class="trip-filter-tab px-4 py-1.5 rounded-full text-xs font-semibold bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all" data-status="ongoing">Ongoing</button>
+        <button onclick="filterTripListStatus('upcoming')" class="trip-filter-tab px-4 py-1.5 rounded-full text-xs font-semibold bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all" data-status="upcoming">Upcoming</button>
+        <button onclick="filterTripListStatus('completed')" class="trip-filter-tab px-4 py-1.5 rounded-full text-xs font-semibold bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all" data-status="completed">Completed</button>
+      </div>
+
+      <div id="my-trips-list-container" class="space-y-4"></div>
+
+    </div>
+
+    <!-- ================= FEATURE 5: ITINERARY BUILDER SCREEN ================= -->
+    <div id="view-itineraryBuilder" class="app-view hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center space-x-1.5">
+            <span>Feature 5</span>
+            <span>•</span>
+            <span>Day-Wise Planner</span>
+          </div>
+          <h2 id="itinerary-builder-title" class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">Build Itinerary: Paris Romantic Odyssey</h2>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button onclick="switchView('itineraryView')" class="px-4 py-2 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors flex items-center space-x-1.5">
+            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+            <span>Preview Feature 6</span>
+          </button>
+          <button onclick="saveAndPublishItinerary()" class="px-5 py-2 rounded-full btn-solid-white font-bold text-xs flex items-center space-x-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span>Publish Itinerary</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="glass-card-dark rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-white/15">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white">Multi-City Route Builder</div>
+            <div class="text-[11px] text-slate-400">Add cities, assign travel dates, schedule activities, and track daily expenses.</div>
+          </div>
+        </div>
+
+        <button onclick="addNewItinerarySection()" class="px-4 py-2 rounded-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs flex items-center space-x-1.5 shadow-md shrink-0">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>+ Add Stop / City</span>
+        </button>
+      </div>
+
+      <div id="itinerary-stops-container" class="space-y-4"></div>
+
+    </div>
+
+    <!-- ================= FEATURE 6: ITINERARY VIEW SCREEN ================= -->
+    <div id="view-itineraryView" class="app-view hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center space-x-1.5">
+            <span>Feature 6</span>
+            <span>•</span>
+            <span>Itinerary Overview</span>
+          </div>
+          <h2 id="itinerary-view-header-title" class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">Parisian Art & Romance Grand Tour</h2>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <div class="flex bg-white/10 rounded-full p-1 border border-white/15">
+            <button onclick="setItineraryViewMode('timeline')" id="mode-timeline-btn" class="px-3 py-1 rounded-full text-xs font-bold bg-white text-[#0b1317]">Timeline</button>
+            <button onclick="setItineraryViewMode('list')" id="mode-list-btn" class="px-3 py-1 rounded-full text-xs font-semibold text-white/80 hover:text-white">City Grouped</button>
+          </div>
+          
+          <button onclick="switchView('itineraryBuilder')" class="px-4 py-2 rounded-full border border-white/20 text-white font-bold text-xs hover:bg-white/10">
+            Edit Plan
+          </button>
+          <button onclick="triggerShareModal()" class="px-5 py-2 rounded-full btn-solid-white font-bold text-xs flex items-center space-x-1.5">
+            <i data-lucide="share" class="w-3.5 h-3.5"></i>
+            <span>Share</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 space-y-4" id="itinerary-view-days-container"></div>
+
+        <div class="lg:col-span-4 space-y-4">
+          <div class="glass-card-dark rounded-3xl p-6 border border-white/15 space-y-4">
+            <h3 class="font-display font-bold text-xl text-white">Trip Summary & Meta</h3>
+            
+            <div class="space-y-3 text-xs">
+              <div class="flex justify-between pb-2 border-b border-white/10">
+                <span class="text-slate-400">Total Duration:</span>
+                <span class="font-bold text-white">7 Days (Sep 15 - 22)</span>
+              </div>
+              <div class="flex justify-between pb-2 border-b border-white/10">
+                <span class="text-slate-400">Total Stops:</span>
+                <span class="font-bold text-white">3 Cities (Paris, Versailles, Giverny)</span>
+              </div>
+              <div class="flex justify-between pb-2 border-b border-white/10">
+                <span class="text-slate-400">Activities Scheduled:</span>
+                <span class="font-bold text-white">7 Experiences</span>
+              </div>
+              <div class="flex justify-between pb-2 border-b border-white/10">
+                <span class="text-slate-400">Estimated Budget:</span>
+                <span class="font-bold text-emerald-400 text-sm">$1,450 USD</span>
+              </div>
+            </div>
+
+            <button onclick="switchView('budget')" class="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors">
+              <i data-lucide="pie-chart" class="w-4 h-4"></i>
+              <span>View Budget Breakdown (Feature 9)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= FEATURE 7: CITY SEARCH SCREEN ================= -->
+    <div id="view-citySearch" class="app-view hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center space-x-1.5">
+            <span>Feature 7</span>
+            <span>•</span>
+            <span>Destination Discovery</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">Explore Global Cities</h2>
+        </div>
+        
+        <div class="text-xs font-bold text-slate-300 bg-white/10 px-4 py-2 rounded-full border border-white/15">
+          <span id="cities-count-badge">8 Cities Available</span>
+        </div>
+      </div>
+
+      <div class="glass-card-dark rounded-2xl p-4 flex flex-col md:flex-row items-center gap-3 border border-white/15">
+        <div class="flex-1 relative w-full">
+          <i data-lucide="search" class="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400"></i>
+          <input id="city-search-input" onkeyup="renderFilteredCities()" type="text" placeholder="Search by city name, country, or keyword..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold text-white focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+        </div>
+
+        <div class="flex items-center space-x-2 w-full md:w-auto">
+          <select id="city-region-filter" onchange="renderFilteredCities()" class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/20 text-xs font-bold text-white focus:outline-none">
+            <option value="all">All Regions</option>
+            <option value="Europe">Europe</option>
+            <option value="Asia">Asia</option>
+            <option value="Americas">Americas</option>
+            <option value="Oceania">Oceania</option>
+          </select>
+
+          <select id="city-cost-filter" onchange="renderFilteredCities()" class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/20 text-xs font-bold text-white focus:outline-none">
+            <option value="all">All Budgets ($ - $$$)</option>
+            <option value="$">$ (Budget Friendly)</option>
+            <option value="$$">$$ (Moderate)</option>
+            <option value="$$$">$$$ (Luxury)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="cities-search-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+    </div>
+
+    <!-- ================= FEATURE 8: ACTIVITY SEARCH SCREEN ================= -->
+    <div id="view-activitySearch" class="app-view hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center space-x-1.5">
+            <span>Feature 8</span>
+            <span>•</span>
+            <span>Experience Explorer</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">Activity & Tour Search</h2>
+        </div>
+
+        <button onclick="switchView('itineraryBuilder')" class="px-4 py-2 rounded-full border border-white/20 bg-white/10 text-white font-bold text-xs hover:bg-white/20 transition-colors">
+          View Active Builder
+        </button>
+      </div>
+
+      <div class="glass-card-dark rounded-2xl p-4 flex flex-col md:flex-row items-center gap-3 border border-white/15">
+        <div class="flex-1 relative w-full">
+          <i data-lucide="search" class="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400"></i>
+          <input id="activity-search-input" onkeyup="renderFilteredActivities()" type="text" placeholder="Search experiences (e.g. Eiffel Tower, Wine Tasting, Diving)..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold text-white focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+        </div>
+
+        <div class="flex items-center space-x-2 w-full md:w-auto">
+          <select id="activity-category-filter" onchange="renderFilteredActivities()" class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/20 text-xs font-bold text-white focus:outline-none">
+            <option value="all">All Categories</option>
+            <option value="Sightseeing">Sightseeing</option>
+            <option value="Culture">Art & Culture</option>
+            <option value="Culinary">Food & Wine</option>
+            <option value="Adventure">Outdoor & Adventure</option>
+            <option value="Cruise">Cruise & Water</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="activities-search-list" class="space-y-4"></div>
+
+    </div>
+
+    <!-- ================= FEATURE 9: TRIP BUDGET SCREEN ================= -->
+    <div id="view-budget" class="app-view hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center space-x-1.5">
+            <span>Feature 9</span>
+            <span>•</span>
+            <span>Financial Manager</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">Trip Budget & Cost Breakdown</h2>
+        </div>
+        
+        <button onclick="promptAddCustomExpense()" class="px-5 py-2.5 rounded-full btn-solid-white font-bold text-xs flex items-center space-x-1.5 self-start">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>+ Add Custom Expense</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card-dark rounded-2xl p-5 border border-white/15 space-y-1">
+          <div class="text-xs font-bold uppercase text-slate-400">Total Planned Budget</div>
+          <div class="font-display text-3xl font-bold text-white" id="budget-total-target">$1,450 USD</div>
+          <div class="text-[11px] text-slate-400">Allocated for 7 Days</div>
+        </div>
+
+        <div class="glass-card-dark rounded-2xl p-5 border border-white/15 space-y-1">
+          <div class="text-xs font-bold uppercase text-slate-400">Estimated Spent</div>
+          <div class="font-display text-3xl font-bold text-emerald-400" id="budget-total-spent">$740 USD</div>
+          <div class="text-[11px] text-emerald-400 font-semibold">Under budget by 49%</div>
+        </div>
+
+        <div class="glass-card-dark rounded-2xl p-5 border border-white/15 space-y-1">
+          <div class="text-xs font-bold uppercase text-slate-400">Average Cost / Day</div>
+          <div class="font-display text-3xl font-bold text-white" id="budget-cost-per-day">$105.70 / day</div>
+          <div class="text-[11px] text-slate-400">7 Days duration</div>
+        </div>
+
+        <div class="glass-card-dark rounded-2xl p-5 border border-white/15 space-y-1">
+          <div class="text-xs font-bold uppercase text-slate-400">Budget Health Status</div>
+          <div class="font-display text-3xl font-bold text-emerald-400">Safe ✓</div>
+          <div class="text-[11px] text-slate-400">No overbudget day alerts</div>
+        </div>
+      </div>
+
+      <div class="glass-card-dark rounded-2xl p-6 border border-white/15 space-y-3">
+        <div class="flex justify-between text-xs font-bold">
+          <span class="text-slate-300">Spent: $740.00 (51%)</span>
+          <span class="text-emerald-400">$710.00 Remaining (49%)</span>
+        </div>
+        <div class="w-full bg-white/10 rounded-full h-3.5 overflow-hidden border border-white/10">
+          <div class="bg-gradient-to-r from-emerald-600 to-teal-400 h-3.5 rounded-full transition-all duration-500" style="width: 51%;"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 glass-card-dark rounded-3xl p-6 border border-white/15 space-y-4">
+          <h3 class="font-display font-bold text-xl text-white">Expense Distribution</h3>
+          <div class="h-64 relative flex items-center justify-center">
+            <canvas id="budgetDonutChart"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 glass-card-dark rounded-3xl p-6 border border-white/15 space-y-4">
+          <h3 class="font-display font-bold text-xl text-white">Categorized Breakdown</h3>
+          
+          <div class="space-y-2.5 text-xs">
+            <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                <span class="font-bold text-white">🏨 Stay / Lodging (3 Nights Boutique Hotel)</span>
+              </div>
+              <span class="font-bold text-emerald-400 text-sm">$360 USD</span>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="w-3 h-3 rounded-full bg-teal-400"></span>
+                <span class="font-bold text-white">🎟 Activities & Guided Museum Passes</span>
+              </div>
+              <span class="font-bold text-teal-300 text-sm">$170 USD</span>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                <span class="font-bold text-white">🥐 Meals, French Dining & Wine Cellars</span>
+              </div>
+              <span class="font-bold text-amber-300 text-sm">$140 USD</span>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="w-3 h-3 rounded-full bg-blue-400"></span>
+                <span class="font-bold text-white">🚇 Transport, Airport Transfer & Metro</span>
+              </div>
+              <span class="font-bold text-blue-300 text-sm">$70 USD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= FEATURE 10: CALENDAR SCREEN ================= -->
+    <div id="view-calendar" class="app-view hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center space-x-1.5">
+            <span>Feature 10</span>
+            <span>•</span>
+            <span>Schedule Timeline</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">Trip Calendar: September 2026</h2>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button onclick="navigateCalendarMonth(-1)" class="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs">‹ Prev</button>
+          <span id="calendar-current-month-label" class="text-xs font-bold text-white px-2">September 2026</span>
+          <button onclick="navigateCalendarMonth(1)" class="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs">Next ›</button>
+        </div>
+      </div>
+
+      <div class="glass-card-dark rounded-3xl p-6 border border-white/15 space-y-3">
+        <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400 uppercase pb-2 border-b border-white/10">
+          <div>Sun</div>
+          <div>Mon</div>
+          <div>Tue</div>
+          <div>Wed</div>
+          <div>Thu</div>
+          <div>Fri</div>
+          <div>Sat</div>
+        </div>
+
+        <div id="calendar-days-grid" class="grid grid-cols-7 gap-2 text-xs"></div>
+      </div>
+
+    </div>
+
+    <!-- ================= FEATURE 11: COMMUNITY TAB ================= -->
+    <div id="view-community" class="app-view hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center space-x-1.5">
+            <span>Feature 11</span>
+            <span>•</span>
+            <span>Traveler Exchange</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">Shared Itineraries & Community</h2>
+        </div>
+
+        <button onclick="openShareItineraryModal()" class="px-5 py-2.5 rounded-full btn-solid-white font-bold text-xs flex items-center space-x-1.5 self-start">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Share Your Itinerary</span>
+        </button>
+      </div>
+
+      <div id="community-feed-container" class="space-y-4 max-w-4xl mx-auto"></div>
+
+    </div>
+
+    <!-- ================= FEATURE 12: USER PROFILE / SETTINGS ================= -->
+    <div id="view-profile" class="app-view hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center space-x-1.5">
+            <span>Feature 12</span>
+            <span>•</span>
+            <span>Profile & Settings</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-0.5">User Settings & Preferences</h2>
+        </div>
+
+        <button onclick="openProfileEditModal()" class="px-5 py-2.5 rounded-full btn-solid-white font-bold text-xs flex items-center space-x-2 self-start">
+          <i data-lucide="user-cog" class="w-4 h-4"></i>
+          <span>Edit Profile Information</span>
+        </button>
+      </div>
+
+      <div class="glass-card-dark rounded-3xl p-6 sm:p-8 space-y-6 border border-white/15">
+        <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+          <div class="w-20 h-20 rounded-2xl bg-emerald-700 text-white flex items-center justify-center font-display text-2xl font-bold border-2 border-emerald-400/40">
+            RP
+          </div>
+
+          <div class="flex-1 space-y-2">
+            <div class="flex flex-wrap items-center gap-3">
+              <h3 id="profile-full-name" class="font-bold text-2xl text-white">Rishabh Paliwal</h3>
+              <span class="px-3 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">Pioneer Explorer</span>
+            </div>
+            <p id="profile-bio-text" class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+              Software engineer & adventurer based in Jaipur, Rajasthan, India. Focused on cultural heritage, mountain treks, and structured travel itineraries.
+            </p>
+
+            <div class="flex flex-wrap gap-y-2 gap-x-6 text-xs text-slate-400 pt-1 font-semibold">
+              <span>✉ <span id="profile-email-text" class="text-slate-200">rishabh.paliwal@example.com</span></span>
+              <span>📞 <span id="profile-phone-text" class="text-slate-200">+91 98765 43210</span></span>
+              <span>📍 <span id="profile-location-text" class="text-slate-200">Jaipur, India</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-white/10 text-center">
+          <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+            <div class="font-display text-3xl font-bold text-white">14</div>
+            <div class="text-xs font-semibold text-slate-400">Countries Visited</div>
+          </div>
+          <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+            <div class="font-display text-3xl font-bold text-emerald-400">32</div>
+            <div class="text-xs font-semibold text-slate-400">Cities Explored</div>
+          </div>
+          <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+            <div class="font-display text-3xl font-bold text-white">24,850</div>
+            <div class="text-xs font-semibold text-slate-400">Total Miles (km)</div>
+          </div>
+          <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+            <div class="font-display text-3xl font-bold text-amber-400">9</div>
+            <div class="text-xs font-semibold text-slate-400">Shared Itineraries</div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-2">Preferred Currency</label>
+            <select id="user-currency-select" onchange="handleCurrencyChange()" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/20 text-white font-semibold focus:outline-none">
+              <option value="USD">USD ($) — US Dollar</option>
+              <option value="INR">INR (₹) — Indian Rupee</option>
+              <option value="EUR">EUR (€) — Euro</option>
+              <option value="GBP">GBP (£) — British Pound</option>
+              <option value="JPY">JPY (¥) — Japanese Yen</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-2">Language Preference</label>
+            <select class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/20 text-white font-semibold focus:outline-none">
+              <option>English (United States)</option>
+              <option>Hindi (हिंदी)</option>
+              <option>French (Français)</option>
+              <option>Japanese (日本語)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-white/10 space-y-3">
+          <h4 class="font-bold text-sm text-white">Saved Destinations Wishlist (4)</h4>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div class="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center space-x-2">
+              <span>🗼</span>
+              <span class="font-bold text-white">Paris, France</span>
+            </div>
+            <div class="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center space-x-2">
+              <span>🏯</span>
+              <span class="font-bold text-white">Kyoto, Japan</span>
+            </div>
+            <div class="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center space-x-2">
+              <span>🍋</span>
+              <span class="font-bold text-white">Amalfi Coast, Italy</span>
+            </div>
+            <div class="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center space-x-2">
+              <span>🌴</span>
+              <span class="font-bold text-white">Bali, Indonesia</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= MODALS ================= -->
+  <div id="auth-modal" class="modal-backdrop fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card-dark rounded-3xl max-w-md w-full p-6 sm:p-8 border border-white/20 shadow-2xl relative space-y-6">
+      <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">✕</button>
+      
+      <div class="flex rounded-full bg-white/10 p-1">
+        <button onclick="setAuthTab('login')" id="auth-tab-login" class="flex-1 py-2 rounded-full text-xs font-bold text-[#0b1317] bg-white transition-all">Sign In</button>
+        <button onclick="setAuthTab('register')" id="auth-tab-register" class="flex-1 py-2 rounded-full text-xs font-bold text-white/70 hover:text-white transition-all">Sign Up</button>
+      </div>
+
+      <form id="auth-login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block uppercase font-bold text-slate-300 mb-1">Email / Username</label>
+          <input type="text" value="rishabh.paliwal@example.com" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold text-white focus:outline-none focus:border-emerald-400">
+        </div>
+        <div>
+          <label class="block uppercase font-bold text-slate-300 mb-1">Password</label>
+          <input type="password" value="password123" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold text-white focus:outline-none focus:border-emerald-400">
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-slate-300">
+          <label class="flex items-center space-x-1.5 cursor-pointer">
+            <input type="checkbox" checked class="rounded text-emerald-600">
+            <span>Remember me</span>
+          </label>
+          <a href="#" onclick="alert('Password reset link sent to your registered email.')" class="text-emerald-400 hover:underline">Forgot Password?</a>
+        </div>
+        <button type="submit" class="w-full py-3.5 rounded-full btn-solid-white font-bold text-sm shadow-xl mt-2">Sign In to Globe Trotter</button>
+      </form>
+
+      <form id="auth-register-form" onsubmit="handleRegisterSubmit(event)" class="hidden space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block uppercase font-bold text-slate-300 mb-1">First Name</label>
+            <input type="text" id="reg-fname" value="Rishabh" required class="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white">
+          </div>
+          <div>
+            <label class="block uppercase font-bold text-slate-300 mb-1">Last Name</label>
+            <input type="text" id="reg-lname" value="Paliwal" required class="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white">
+          </div>
+        </div>
+        <div>
+          <label class="block uppercase font-bold text-slate-300 mb-1">Email Address</label>
+          <input type="email" id="reg-email" value="rishabh.paliwal@example.com" required class="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white">
+        </div>
+        <div>
+          <label class="block uppercase font-bold text-slate-300 mb-1">City & Country</label>
+          <input type="text" id="reg-city-country" value="Jaipur, India" required class="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white">
+        </div>
+        <button type="submit" class="w-full py-3.5 rounded-full btn-solid-white font-bold text-sm shadow-xl mt-3">Create Free Account</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="profile-edit-modal" class="modal-backdrop fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card-dark rounded-3xl max-w-md w-full p-6 sm:p-8 border border-white/20 shadow-2xl relative space-y-4">
+      <button onclick="closeProfileEditModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">✕</button>
+      <h3 class="font-display font-bold text-2xl text-white">Edit Profile Details</h3>
+      <form onsubmit="handleSaveProfile(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block uppercase font-bold text-slate-300 mb-1">Display Name</label>
+          <input type="text" id="edit-profile-name" value="Rishabh Paliwal" required class="w-full p-2.5 rounded-xl bg-white/10 border border-white/20 text-white">
+        </div>
+        <div>
+          <label class="block uppercase font-bold text-slate-300 mb-1">Phone Number</label>
+          <input type="text" id="edit-profile-phone" value="+91 98765 43210" required class="w-full p-2.5 rounded-xl bg-white/10 border border-white/20 text-white">
+        </div>
+        <div>
+          <label class="block uppercase font-bold text-slate-300 mb-1">Location</label>
+          <input type="text" id="edit-profile-location" value="Jaipur, India" required class="w-full p-2.5 rounded-xl bg-white/10 border border-white/20 text-white">
+        </div>
+        <div>
+          <label class="block uppercase font-bold text-slate-300 mb-1">Traveler Bio</label>
+          <textarea id="edit-profile-bio" rows="2" class="w-full p-2.5 rounded-xl bg-white/10 border border-white/20 text-white">Software engineer & adventurer based in Jaipur, Rajasthan, India.</textarea>
+        </div>
+        <button type="submit" class="w-full py-3 rounded-full btn-solid-white font-bold text-sm mt-2">Save Profile Updates</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- ================= SCRIPT LOGIC ================= -->
+  <script>
+    if (window.lucide) lucide.createIcons();
+
+    const defaultTrips = [
+      {
+        id: 'trip-1',
+        name: 'Parisian Art & Romance Grand Tour',
+        origin: 'Jaipur, India',
+        destination: 'Paris, France',
+        startDate: '2026-09-15',
+        endDate: '2026-09-22',
+        status: 'ongoing',
+        budget: 1450,
+        spent: 740,
+        coverImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80',
+        description: '7-day romantic French exploration featuring Louvre guided access, Eiffel summit sunset, and Seine champagne dinner cruise.',
+        stops: [
+          {
+            id: 'stop-1',
+            dayNumber: 1,
+            title: 'Arrival & 7th Arrondissement',
+            timing: 'Day 1 • 09:00 AM - 09:00 PM',
+            location: 'CDG Airport → 7th Arr. Boutique Hotel → Champ de Mars',
+            description: 'Check in at boutique hotel. Afternoon walking tour of Champ de Mars followed by Eiffel Tower sunset summit access.',
+            cost: 185,
+            activities: ['Eiffel Tower Summit Access', 'Champ de Mars Walking Tour', 'Macaron Tasting']
+          },
+          {
+            id: 'stop-2',
+            dayNumber: 2,
+            title: 'Louvre Masterpieces & River Cruise',
+            timing: 'Day 2 • 10:00 AM - 10:30 PM',
+            location: 'Louvre Museum → Tuileries Garden → Pont Neuf Pier',
+            description: 'Morning guided Louvre Museum pass (Mona Lisa, Winged Victory). 07:30 PM Seine River 3-course dinner cruise.',
+            cost: 210,
+            activities: ['Louvre Guided Pass', 'Tuileries Gardens', 'Seine River 3-Course Dinner Cruise']
+          }
+        ]
+      },
+      {
+        id: 'trip-2',
+        name: 'Santorini Sunset Bliss & Aegean Sailing',
+        origin: 'Jaipur, India',
+        destination: 'Santorini, Greece',
+        startDate: '2026-10-04',
+        endDate: '2026-10-10',
+        status: 'upcoming',
+        budget: 1750,
+        spent: 600,
+        coverImage: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=600&auto=format&fit=crop&q=80',
+        description: '6-day Greek island getaway with luxury cliffside villa in Oia and private catamaran cruise.',
+        stops: []
+      }
+    ];
+
+    const defaultCities = [
+      { id: 'c1', name: 'Paris', country: 'France', region: 'Europe', costIndex: '$$$', rating: '4.9', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&auto=format&fit=crop&q=80', desc: 'World capital of art, gastronomy, and iconic architecture.' },
+      { id: 'c2', name: 'Tokyo', country: 'Japan', region: 'Asia', costIndex: '$$$', rating: '4.95', image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=400&auto=format&fit=crop&q=80', desc: 'Electrifying blend of futuristic skyscrapers and serene Shinto shrines.' },
+      { id: 'c3', name: 'Amalfi Coast', country: 'Italy', region: 'Europe', costIndex: '$$$', rating: '4.88', image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=400&auto=format&fit=crop&q=80', desc: 'Dramatic Mediterranean cliffs, pastel fishing villages, and lemon groves.' },
+      { id: 'c4', name: 'Bali', country: 'Indonesia', region: 'Asia', costIndex: '$', rating: '4.85', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&auto=format&fit=crop&q=80', desc: 'Tropical paradise of rice terraces, coral reefs, and volcanic sanctuaries.' }
+    ];
+
+    const defaultActivities = [
+      { id: 'a1', name: 'Eiffel Tower Summit Elevator Access', city: 'Paris, France', category: 'Sightseeing', duration: '2.5 hrs', cost: 38, rating: '4.9', desc: 'Direct elevator access to the summit deck (276m) with champagne bar and panoramic skyline views.' },
+      { id: 'a2', name: 'Louvre Masterpieces Guided Pass', city: 'Paris, France', category: 'Culture', duration: '3.0 hrs', cost: 45, rating: '4.92', desc: 'Skip-the-line guided entrance covering the Mona Lisa, Venus de Milo, and Winged Victory.' },
+      { id: 'a3', name: 'Seine River Gourmet 3-Course Dinner Cruise', city: 'Paris, France', category: 'Cruise', duration: '2.5 hrs', cost: 95, rating: '4.88', desc: 'Glass-enclosed luxury boat sailing past illuminated monuments with live jazz.' }
+    ];
+
+    const defaultCommunityPosts = [
+      {
+        id: 'post-1',
+        author: 'Rishabh Paliwal',
+        avatar: 'RP',
+        city: 'Jaipur, India',
+        tripName: 'Parisian 7-Day Romance Route',
+        days: 7,
+        budget: '$1,450 USD',
+        likes: 142,
+        isLiked: false,
+        summary: 'A balanced itinerary exploring classic landmarks and hidden bistros. Highly recommend booking the Eiffel summit 3 weeks in advance!'
+      }
+    ];
+
+    let trips = JSON.parse(localStorage.getItem('globetrotter_trips')) || defaultTrips;
+    let cities = defaultCities;
+    let activities = defaultActivities;
+    let communityPosts = JSON.parse(localStorage.getItem('globetrotter_community')) || defaultCommunityPosts;
+    let currentTripIndex = 0;
+
+    function saveState() {
+      localStorage.setItem('globetrotter_trips', JSON.stringify(trips));
+      localStorage.setItem('globetrotter_community', JSON.stringify(communityPosts));
+    }
+
+    const allViews = ['home', 'createTrip', 'myTrips', 'itineraryBuilder', 'itineraryView', 'citySearch', 'activitySearch', 'budget', 'calendar', 'community', 'profile'];
+
+    function switchView(target) {
+      allViews.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) {
+          if (v === target) el.classList.remove('hidden');
+          else el.classList.add('hidden');
+        }
+      });
+
+      allViews.forEach(v => {
+        const navBtn = document.getElementById('nav-' + v);
+        if (navBtn) {
+          if (v === target) navBtn.className = 'text-emerald-400 font-bold transition-colors';
+          else navBtn.className = 'hover:text-emerald-400 text-white/90 font-semibold transition-colors';
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (target === 'home') renderHomeTrips();
+      if (target === 'myTrips') renderMyTrips('all');
+      if (target === 'itineraryBuilder') renderItineraryBuilderStops();
+      if (target === 'itineraryView') renderItineraryView();
+      if (target === 'citySearch') renderFilteredCities();
+      if (target === 'activitySearch') renderFilteredActivities();
+      if (target === 'budget') setTimeout(initBudgetCharts, 120);
+      if (target === 'calendar') renderCalendar();
+      if (target === 'community') renderCommunityFeed();
+    }
+
+    function toggleVideoPlayback() {
+      const video = document.getElementById('fullBgVideo');
+      const btn = document.getElementById('videoToggleBtn');
+      if (!video) return;
+      if (video.paused) {
+        video.play();
+        if (btn) btn.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i>';
+        showToast('Background Video Playing');
+      } else {
+        video.pause();
+        if (btn) btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i>';
+        showToast('Background Video Paused');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderHomeTrips() {
+      const container = document.getElementById('home-trips-list');
+      if (!container) return;
+      container.innerHTML = trips.slice(0, 3).map((trip, idx) => `
+        <div onclick="selectTripForViewing(${idx})" class="glass-card-dark glass-card-hover rounded-2xl p-5 space-y-3 cursor-pointer border border-white/15">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${trip.status === 'ongoing' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-blue-500/20 text-blue-300 border border-blue-400/30'}">${trip.status.toUpperCase()}</span>
+            <span class="text-xs text-slate-400 font-semibold">${trip.startDate}</span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <img src="${trip.coverImage}" alt="${trip.name}" class="w-14 h-14 rounded-xl object-cover border border-white/10 shrink-0">
+            <div class="min-w-0 flex-1">
+              <h4 class="font-bold text-white text-sm truncate">${trip.name}</h4>
+              <p class="text-xs text-slate-400">${trip.destination} • ${trip.stops ? trip.stops.length : 1} Stops</p>
+            </div>
+          </div>
+          <div class="pt-2 border-t border-white/10 flex items-center justify-between text-xs font-semibold">
+            <span class="text-slate-400">Budget: <strong class="text-emerald-400">$${trip.budget}</strong></span>
+            <span class="text-emerald-400 hover:underline">View Itinerary →</span>
+          </div>
+        </div>
+      `).join('');
+      renderHomeFeaturedCities();
+    }
+
+    function renderHomeFeaturedCities() {
+      const container = document.getElementById('home-featured-cities-grid');
+      if (!container) return;
+      container.innerHTML = cities.slice(0, 4).map(city => `
+        <div onclick="quickStartPlan('${city.name}, ${city.country}', '1450')" class="glass-card-dark glass-card-hover rounded-2xl p-4 space-y-3.5 cursor-pointer group border border-white/15">
+          <div class="relative h-48 rounded-xl overflow-hidden">
+            <img src="${city.image}" alt="${city.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold">${city.country}</div>
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-white group-hover:text-emerald-400 transition-colors">${city.name}</h3>
+            <p class="text-xs text-slate-300 line-clamp-2 mt-0.5">${city.desc}</p>
+          </div>
+          <button class="w-full py-2 rounded-xl bg-white/10 group-hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors">
+            <span>Plan Trip to ${city.name}</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      `).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function quickStartPlan(dest, budget) {
+      switchView('createTrip');
+      document.getElementById('trip-input-destination').value = dest;
+      document.getElementById('trip-input-budget').value = budget;
+      document.getElementById('trip-input-name').value = `${dest.split(',')[0]} Explorer Odyssey`;
+      showToast(`Prefilled destination: ${dest}`);
+    }
+
+    function handleCreateTripForm(e) {
+      e.preventDefault();
+      const name = document.getElementById('trip-input-name').value;
+      const origin = document.getElementById('trip-input-origin').value;
+      const dest = document.getElementById('trip-input-destination').value;
+      const start = document.getElementById('trip-input-start-date').value;
+      const end = document.getElementById('trip-input-end-date').value;
+      const budget = parseFloat(document.getElementById('trip-input-budget').value) || 1500;
+      const cover = document.getElementById('trip-input-theme').value;
+      const desc = document.getElementById('trip-input-desc').value;
+
+      const newTrip = {
+        id: 'trip-' + Date.now(),
+        name: name, origin: origin, destination: dest, startDate: start, endDate: end,
+        status: 'upcoming', budget: budget, spent: 0, coverImage: cover, description: desc,
+        stops: [{ id: 'stop-' + Date.now(), dayNumber: 1, title: `Arrival in ${dest.split(',')[0]}`, timing: `Day 1 • 10:00 AM - 08:00 PM`, location: `${origin} → ${dest}`, description: `Check-in at accommodation and explore the neighborhood.`, cost: 150, activities: [`Arrival in ${dest.split(',')[0]}`] }]
+      };
+      trips.unshift(newTrip);
+      currentTripIndex = 0;
+      saveState();
+      if (window.confetti) confetti({ particleCount: 70, spread: 60 });
+      showToast(`🎉 "${name}" created!`);
+      switchView('itineraryBuilder');
+    }
+
+    function renderMyTrips(statusFilter = 'all') {
+      const container = document.getElementById('my-trips-list-container');
+      if (!container) return;
+      const filtered = (statusFilter === 'all') ? trips : trips.filter(t => t.status === statusFilter);
+      container.innerHTML = filtered.map((trip, idx) => {
+        const actualIndex = trips.findIndex(t => t.id === trip.id);
+        const percentSpent = Math.min(100, Math.round((trip.spent / trip.budget) * 100)) || 0;
+        return `
+          <div class="glass-card-dark rounded-3xl p-6 border border-white/15 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="px-3 py-0.5 rounded-full text-[10px] font-bold ${trip.status === 'ongoing' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-blue-500/20 text-blue-300'}">${trip.status.toUpperCase()} • ${trip.startDate}</span>
+              <div class="flex items-center space-x-2">
+                <button onclick="duplicateTrip(${actualIndex})" class="px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-xs font-semibold text-white">Duplicate</button>
+                <button onclick="deleteTrip(${actualIndex})" class="p-1.5 rounded-full text-slate-400 hover:text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+              <img src="${trip.coverImage}" alt="${trip.name}" class="md:col-span-3 h-32 w-full rounded-2xl object-cover">
+              <div class="md:col-span-6 space-y-2">
+                <h3 class="font-display font-bold text-xl text-white">${trip.name}</h3>
+                <p class="text-xs text-slate-300">${trip.description}</p>
+                <div class="text-[11px] font-bold text-emerald-400">Budget: $${trip.spent} / $${trip.budget} USD</div>
+              </div>
+              <div class="md:col-span-3 flex flex-col gap-2">
+                <button onclick="selectTripForViewing(${actualIndex})" class="w-full py-2.5 rounded-xl btn-solid-white font-bold text-xs">View Itinerary</button>
+                <button onclick="selectTripForEditing(${actualIndex})" class="w-full py-2 rounded-xl border border-white/20 bg-white/5 font-bold text-xs">Edit Builder</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function filterTripListStatus(status) { renderMyTrips(status); }
+    function deleteTrip(idx) { if (confirm(`Delete trip?`)) { trips.splice(idx, 1); saveState(); renderMyTrips('all'); } }
+    function duplicateTrip(idx) { const cloned = JSON.parse(JSON.stringify(trips[idx])); cloned.id = 'trip-' + Date.now(); cloned.name = `Copy of ${cloned.name}`; trips.push(cloned); saveState(); renderMyTrips('all'); }
+    function selectTripForViewing(idx) { currentTripIndex = idx; switchView('itineraryView'); }
+    function selectTripForEditing(idx) { currentTripIndex = idx; switchView('itineraryBuilder'); }
+
+    function renderItineraryBuilderStops() {
+      const trip = trips[currentTripIndex] || trips[0];
+      if (!trip) return;
+      document.getElementById('itinerary-builder-title').innerText = `Build Itinerary: ${trip.name}`;
+      const container = document.getElementById('itinerary-stops-container');
+      if (!container) return;
+      container.innerHTML = (trip.stops || []).map((stop, idx) => `
+        <div class="glass-card-dark rounded-3xl p-6 space-y-4 border border-white/15">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-lg text-white">Section ${idx + 1}: ${stop.title}</h3>
+            <button onclick="removeItineraryStop(${idx})" class="text-slate-400 hover:text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </div>
+          <textarea rows="2" onchange="updateStopField(${idx}, 'description', this.value)" class="w-full p-3 rounded-xl bg-white/10 border border-white/15 text-xs text-slate-200">${stop.description}</textarea>
+          <div class="text-xs font-semibold text-slate-300">Cost: <input type="number" value="${stop.cost}" onchange="updateStopCost(${idx}, this.value)" class="w-24 px-2 py-1 rounded bg-white/10 text-emerald-400 font-bold"> USD</div>
+        </div>
+      `).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function updateStopField(idx, field, val) { const trip = trips[currentTripIndex]; if (trip && trip.stops[idx]) { trip.stops[idx][field] = val; saveState(); } }
+    function updateStopCost(idx, val) { const trip = trips[currentTripIndex]; if (trip && trip.stops[idx]) { trip.stops[idx].cost = parseFloat(val) || 0; trip.spent = trip.stops.reduce((s, x) => s + (x.cost || 0), 0); saveState(); } }
+    function addNewItinerarySection() { const trip = trips[currentTripIndex]; if (!trip) return; if (!trip.stops) trip.stops = []; const n = trip.stops.length + 1; trip.stops.push({ id: 'stop-' + Date.now(), dayNumber: n, title: `Day ${n} Exploration`, timing: `Day ${n} • 09:00 AM - 08:00 PM`, location: trip.destination, description: `Scheduled activities.`, cost: 140, activities: [] }); trip.spent = trip.stops.reduce((s, x) => s + (x.cost || 0), 0); saveState(); renderItineraryBuilderStops(); showToast(`Added Section ${n}`); }
+    function removeItineraryStop(idx) { const trip = trips[currentTripIndex]; if (trip && trip.stops) { trip.stops.splice(idx, 1); trip.spent = trip.stops.reduce((s, x) => s + (x.cost || 0), 0); saveState(); renderItineraryBuilderStops(); } }
+    function saveAndPublishItinerary() { saveState(); if (window.confetti) confetti({ particleCount: 80, spread: 70 }); showToast('🎉 Itinerary Published!'); switchView('itineraryView'); }
+
+    function setItineraryViewMode(mode) { renderItineraryView(); }
+    function renderItineraryView() {
+      const trip = trips[currentTripIndex] || trips[0];
+      if (!trip) return;
+      document.getElementById('itinerary-view-header-title').innerText = trip.name;
+      const container = document.getElementById('itinerary-view-days-container');
+      if (!container) return;
+      container.innerHTML = (trip.stops || []).map((stop, idx) => `
+        <div class="glass-card-dark rounded-3xl p-6 border border-white/15 space-y-3">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2">
+            <span class="px-3 py-0.5 rounded-full bg-emerald-600 text-white font-bold text-xs">Day ${idx + 1}</span>
+            <span class="text-xs font-bold text-emerald-400">$${stop.cost} USD</span>
+          </div>
+          <p class="text-xs text-slate-300">${stop.description}</p>
+        </div>
+      `).join('');
+    }
+
+    function renderFilteredCities() {
+      const q = (document.getElementById('city-search-input')?.value || '').toLowerCase();
+      const container = document.getElementById('cities-search-grid');
+      if (!container) return;
+      const filtered = cities.filter(c => c.name.toLowerCase().includes(q) || c.country.toLowerCase().includes(q));
+      container.innerHTML = filtered.map(c => `
+        <div class="glass-card-dark rounded-3xl p-5 border border-white/15 space-y-3">
+          <img src="${c.image}" class="w-full h-40 rounded-2xl object-cover">
+          <h3 class="font-bold text-lg text-white">${c.name}, ${c.country}</h3>
+          <p class="text-xs text-slate-300">${c.desc}</p>
+          <button onclick="addCityToCurrentTrip('${c.name}, ${c.country}')" class="w-full py-2.5 rounded-xl btn-solid-white font-bold text-xs">+ Add to Trip</button>
+        </div>
+      `).join('');
+    }
+
+    function addCityToCurrentTrip(cityName) { const trip = trips[currentTripIndex]; if (trip) { if (!trip.stops) trip.stops = []; const n = trip.stops.length + 1; trip.stops.push({ id: 'stop-' + Date.now(), dayNumber: n, title: `Day in ${cityName}`, timing: `Day ${n}`, location: cityName, description: `Explore ${cityName}`, cost: 150, activities: [] }); trip.spent += 150; saveState(); showToast(`Added ${cityName}!`); } }
+
+    function renderFilteredActivities() {
+      const q = (document.getElementById('activity-search-input')?.value || '').toLowerCase();
+      const container = document.getElementById('activities-search-list');
+      if (!container) return;
+      const filtered = activities.filter(a => a.name.toLowerCase().includes(q) || a.city.toLowerCase().includes(q));
+      container.innerHTML = filtered.map(a => `
+        <div class="glass-card-dark rounded-2xl p-5 border border-white/15 flex items-center justify-between">
+          <div>
+            <h4 class="font-bold text-white">${a.name} (${a.city})</h4>
+            <p class="text-xs text-slate-300">${a.desc}</p>
+          </div>
+          <button onclick="addActivityToCurrentTrip('${a.name}', ${a.cost})" class="px-5 py-2 rounded-full btn-solid-white font-bold text-xs shrink-0">+ Add ($${a.cost})</button>
+        </div>
+      `).join('');
+    }
+
+    function addActivityToCurrentTrip(act, cost) { const trip = trips[currentTripIndex]; if (trip && trip.stops && trip.stops.length > 0) { trip.stops[0].description += ` Includes: ${act}.`; trip.stops[0].cost += cost; trip.spent += cost; saveState(); showToast(`Added "${act}"`); } }
+
+    let budgetDonutInstance = null;
+    function initBudgetCharts() {
+      const canvas = document.getElementById('budgetDonutChart');
+      if (canvas && window.Chart) {
+        if (budgetDonutInstance) budgetDonutInstance.destroy();
+        budgetDonutInstance = new Chart(canvas.getContext('2d'), {
+          type: 'doughnut',
+          data: { labels: ['Stay', 'Activities', 'Food', 'Transit'], datasets: [{ data: [360, 170, 140, 70], backgroundColor: ['#047857', '#0d9488', '#f59e0b', '#3b82f6'], borderWidth: 0 }] },
+          options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { labels: { color: '#ffffff' } } } }
+        });
+      }
+    }
+
+    function promptAddCustomExpense() { const item = prompt('Expense name:'); const amt = parseFloat(prompt('Cost in USD:')); if (item && amt) { const trip = trips[currentTripIndex]; if (trip) { trip.spent += amt; saveState(); initBudgetCharts(); showToast(`Logged $${amt} for ${item}`); } } }
+
+    let currentCalMonth = 8;
+    function renderCalendar() {
+      const grid = document.getElementById('calendar-days-grid');
+      if (!grid) return;
+      let cells = '';
+      for (let day = 1; day <= 30; day++) {
+        let isTrip = (day >= 15 && day <= 22);
+        cells += `<div class="h-20 p-1.5 rounded-xl ${isTrip ? 'bg-emerald-950/40 border border-emerald-500/50' : 'bg-white/5 border border-white/10'}"><span class="${isTrip ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${day}</span>${isTrip ? '<div class="text-[9px] text-emerald-300 font-bold truncate">🗼 Paris</div>' : ''}</div>`;
+      }
+      grid.innerHTML = cells;
+    }
+    function navigateCalendarMonth(dir) { renderCalendar(); }
+
+    function renderCommunityFeed() {
+      const container = document.getElementById('community-feed-container');
+      if (!container) return;
+      container.innerHTML = communityPosts.map((p, idx) => `
+        <div class="glass-card-dark rounded-3xl p-6 border border-white/15 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-white">${p.tripName} (${p.author})</h4>
+            <span class="text-xs text-emerald-400 font-bold">${p.budget}</span>
+          </div>
+          <p class="text-xs text-slate-300">${p.summary}</p>
+          <div class="flex justify-between items-center pt-2 border-t border-white/10">
+            <button onclick="togglePostLike(${idx})" class="text-xs text-white">❤️ ${p.likes} Likes</button>
+            <button onclick="forkCommunityTrip(${idx})" class="px-4 py-1.5 rounded-full btn-solid-white font-bold text-xs">Copy Trip Plan</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function togglePostLike(idx) { communityPosts[idx].likes += 1; saveState(); renderCommunityFeed(); }
+    function forkCommunityTrip(idx) { const p = communityPosts[idx]; trips.push({ id: 'trip-' + Date.now(), name: `Forked: ${p.tripName}`, origin: 'Jaipur, India', destination: 'Paris, France', startDate: '2026-11-01', endDate: '2026-11-08', status: 'upcoming', budget: 1500, spent: 0, coverImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80', description: p.summary, stops: [] }); saveState(); showToast('Cloned to My Trips!'); switchView('myTrips'); }
+    function triggerShareModal() { navigator.clipboard?.writeText(window.location.href); showToast('🔗 Share link copied to clipboard!'); }
+    function openShareItineraryModal() { const note = prompt('Enter a tip to share:'); if (note) { communityPosts.unshift({ id: 'post-' + Date.now(), author: 'Rishabh Paliwal', avatar: 'RP', city: 'Jaipur, India', tripName: trips[currentTripIndex]?.name || 'My Journey', days: 7, budget: '$1,450 USD', likes: 1, summary: note }); saveState(); renderCommunityFeed(); showToast('Shared to Community!'); } }
+
+    function handleCurrencyChange() { showToast(`Preferred currency updated.`); }
+    function openProfileEditModal() { document.getElementById('profile-edit-modal')?.classList.remove('hidden'); }
+    function closeProfileEditModal() { document.getElementById('profile-edit-modal')?.classList.add('hidden'); }
+    function handleSaveProfile(e) { e.preventDefault(); const name = document.getElementById('edit-profile-name').value; document.getElementById('profile-full-name').innerText = name; document.getElementById('header-user-name').innerText = name.split(' ')[0]; closeProfileEditModal(); showToast('Profile saved!'); }
+
+    function openAuthModal(tab = 'login') { setAuthTab(tab); document.getElementById('auth-modal')?.classList.remove('hidden'); }
+    function closeAuthModal() { document.getElementById('auth-modal')?.classList.add('hidden'); }
+    function setAuthTab(tab) {
+      if (tab === 'login') { document.getElementById('auth-login-form').classList.remove('hidden'); document.getElementById('auth-register-form').classList.add('hidden'); }
+      else { document.getElementById('auth-login-form').classList.add('hidden'); document.getElementById('auth-register-form').classList.remove('hidden'); }
+    }
+    function handleLoginSubmit(e) { e.preventDefault(); closeAuthModal(); showToast('Signed in successfully!'); }
+    function handleRegisterSubmit(e) { e.preventDefault(); closeAuthModal(); showToast('Registered successfully!'); }
+
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'glass-card-dark px-4 py-3 rounded-2xl border border-white/20 shadow-2xl text-xs font-bold text-white flex items-center space-x-2.5 pointer-events-auto';
+      toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span><span>${msg}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(8px)'; setTimeout(() => toast.remove(), 250); }, 2800);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => { renderHomeTrips(); });
+  </script>
+</body>
+</html>
