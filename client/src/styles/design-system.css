@@ -1,0 +1,19 @@
+:root {
+  --color-bg: #0b1317;
+  --color-bg-card: rgba(14, 25, 31, 0.85);
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-border-hover: rgba(255, 255, 255, 0.3);
+  
+  --color-dark: #0b1317;
+  --color-dark-surface: #0e191f;
+  
+  --color-emerald: #047857;
+  --color-emerald-light: #10b981;
+  --color-teal: #0d9488;
+  
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8;
+  
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Bebas Neue', Impact, sans-serif;
+}
