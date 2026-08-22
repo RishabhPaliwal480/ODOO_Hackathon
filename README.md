@@ -29,6 +29,3 @@ The platform aims to make travel planning more organized, accessible, and effici
 
 The goal of GlobeTrotter is to simplify the travel planning experience by providing a single platform for discovering destinations, planning journeys, organizing itineraries, and managing travel information.
 
-## Current Status
-
-GlobeTrotter is currently under active development, and features and functionality may continue to evolve as the project is improved.
