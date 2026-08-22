@@ -38,7 +38,8 @@ The goal of GlobeTrotter is to simplify the travel planning experience by provid
 > See GlobeTrotter in action — from destination discovery to trip planning and itinerary management.
 Watch the Demo Video -> https://youtu.be/de8nGkv9nOI
 
-## Live Demo -> https://odoo-hackathon-7n20d4vn3-rishabhautomates-4469s-projects.vercel.app/
+## Live Demo 
+-> https://odoo-hackathon-7n20d4vn3-rishabhautomates-4469s-projects.vercel.app/
 
 ## Module Overview
 
