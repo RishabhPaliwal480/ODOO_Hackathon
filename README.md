@@ -29,3 +29,7 @@ The platform aims to make travel planning more organized, accessible, and effici
 
 The goal of GlobeTrotter is to simplify the travel planning experience by providing a single platform for discovering destinations, planning journeys, organizing itineraries, and managing travel information.
 
+## 🎥 Demo Video
+
+> See GlobeTrotter in action — from destination discovery to trip planning and itinerary management.
+Watch the Demo Video -> https://youtu.be/de8nGkv9nOI
